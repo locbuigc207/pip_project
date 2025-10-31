@@ -1,0 +1,2 @@
+C:/Users/CUONG/AndroidStudioProjects/Pippips/android/app/.cxx/RelWithDebInfo/3u4g4c3u/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/CUONG/AndroidStudioProjects/Pippips/android/app/.cxx/RelWithDebInfo/3u4g4c3u/armeabi-v7a/CMakeFiles/rebuild_cache.dir

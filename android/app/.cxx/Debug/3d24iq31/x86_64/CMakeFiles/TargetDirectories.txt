@@ -1,0 +1,2 @@
+C:/Users/CUONG/AndroidStudioProjects/Pippips/android/app/.cxx/Debug/3d24iq31/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/CUONG/AndroidStudioProjects/Pippips/android/app/.cxx/Debug/3d24iq31/x86_64/CMakeFiles/rebuild_cache.dir

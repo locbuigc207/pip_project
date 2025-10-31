@@ -1,0 +1,2 @@
+C:/Users/CUONG/Documents/Github2/pippipappgen3/android/app/.cxx/Debug/654d165n/x86/CMakeFiles/edit_cache.dir
+C:/Users/CUONG/Documents/Github2/pippipappgen3/android/app/.cxx/Debug/654d165n/x86/CMakeFiles/rebuild_cache.dir
