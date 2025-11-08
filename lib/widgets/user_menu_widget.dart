@@ -6,12 +6,7 @@ import 'package:pippips/utils/boxChat.dart';
 import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
 
-/// UserMenuWidget - Widget hiển thị menu user ở góc phải màn hình
-/// --------------------------------------------------------------
-/// Features:
-/// - Hiển thị thông tin user (tên, email)
-/// - Icon khác nhau cho Guest (màu vàng) và User đã đăng ký (xanh)
-/// - Chức năng logout/exit với logic đồng bộ SplashPage
+
 class UserMenuWidget extends StatefulWidget {
   const UserMenuWidget({super.key});
 
@@ -31,7 +26,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
     _loadUserData();
   }
 
-  /// Load thông tin user từ SharedPreferences
   Future<void> _loadUserData() async {
     try {
       final guestMode = await AuthManager.isGuestMode();
@@ -65,7 +59,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
     }
   }
 
-  /// Xử lý logout/exit - đồng bộ với SplashPage logic
   Future<void> _handleLogout() async {
     final shouldLogout = await showDialog<bool>(
       context: context,
@@ -137,7 +130,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
     if (shouldLogout != true) return;
 
     try {
-      // Hiển thị loading dialog
       if (mounted) {
         showDialog(
           context: context,
@@ -167,20 +159,15 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         );
       }
 
-      // Logout logic
       await AuthManager.logout();
 
-      // Nếu là guest, có thể giữ lại chat local (hoặc xóa nếu muốn)
       if (isGuest) {
-        // await AppBoxChat.clearSpecificBox('conversationBox'); // nếu muốn xóa
       }
 
       if (!mounted) return;
 
-      // Đóng dialog loading
       Navigator.of(context, rootNavigator: true).pop();
 
-      // Hiển thị thông báo
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -194,7 +181,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         ),
       );
 
-      // Chờ 300ms rồi điều hướng (đảm bảo GoRouter không bị lock)
       await Future.delayed(const Duration(milliseconds: 300));
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -205,7 +191,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       print('Error during logout: $e');
       if (!mounted) return;
 
-      // Đóng loading dialog nếu đang mở
       if (Navigator.of(context, rootNavigator: true).canPop()) {
         Navigator.of(context, rootNavigator: true).pop();
       }
@@ -253,7 +238,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         ),
       ),
       itemBuilder: (BuildContext context) => [
-        // Header hiển thị thông tin người dùng
         PopupMenuItem<String>(
           enabled: false,
           padding: const EdgeInsets.all(16),
@@ -355,7 +339,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
           ),
         ),
 
-        // Logout / Exit option
         PopupMenuItem<String>(
           value: 'logout',
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

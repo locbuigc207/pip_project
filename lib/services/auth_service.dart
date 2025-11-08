@@ -6,14 +6,13 @@ import 'package:pippips/configs/api_error_handler.dart';
 class AuthService {
   final DioClient dio = DioClient();
 
-  /// Login với email và password
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
   }) async {
     try {
       final response = await dio.post(
-        APIConfig.login, // Thêm endpoint login vào APIConfig
+        APIConfig.login,
         data: {
           'email': email,
           'password': password,
@@ -52,7 +51,6 @@ class AuthService {
     }
   }
 
-  /// Đăng ký tài khoản mới
   Future<Map<String, dynamic>> register({
     required String fullName,
     required String email,
@@ -60,7 +58,7 @@ class AuthService {
   }) async {
     try {
       final response = await dio.post(
-        APIConfig.register, // Thêm endpoint register vào APIConfig
+        APIConfig.register,
         data: {
           'full_name': fullName,
           'email': email,

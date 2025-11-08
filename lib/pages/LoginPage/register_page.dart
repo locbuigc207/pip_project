@@ -81,7 +81,6 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       try {
-        // Gọi API đăng ký
         final result = await AuthService().register(
           fullName: _fullNameController.text.trim(),
           email: _emailController.text.trim(),
@@ -90,7 +89,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
         if (result['success'] == true) {
           if (mounted) {
-            // Hiển thị thông báo thành công
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -105,16 +103,13 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             );
 
-            // Đợi một chút để user đọc thông báo
             await Future.delayed(const Duration(milliseconds: 1500));
 
-            // Quay lại trang login
             if (mounted) {
               context.pop();
             }
           }
         } else {
-          // Đăng ký thất bại
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -132,7 +127,6 @@ class _RegisterPageState extends State<RegisterPage> {
           }
         }
       } catch (e) {
-        // Xử lý lỗi exception
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

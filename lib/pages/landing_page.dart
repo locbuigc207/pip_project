@@ -15,14 +15,12 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   bool _isLoading = false;
 
-  // Xử lý đặt xe ngay (Guest mode)
   Future<void> _handleBookNow() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Kích hoạt chế độ khách
       final success = await AuthManager.enableGuestMode();
 
       if (success && mounted) {
@@ -91,7 +89,6 @@ class _LandingPageState extends State<LandingPage> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              // Header với title
               Container(
                 padding: const EdgeInsets.only(top: 16),
                 child: Text(
@@ -102,10 +99,8 @@ class _LandingPageState extends State<LandingPage> {
                 ),
               ),
 
-              // Spacer để đẩy nội dung xuống giữa
               const Spacer(),
 
-              // Nút "ĐẶT XE PIPPIP"
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -140,7 +135,6 @@ class _LandingPageState extends State<LandingPage> {
 
               const SizedBox(height: 16),
 
-              // Text "Bạn đã có tài khoản? Đăng nhập"
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -169,7 +163,6 @@ class _LandingPageState extends State<LandingPage> {
                 ],
               ),
 
-              // Spacer để đẩy content lên một chút từ bottom
               const SizedBox(height: 80),
             ],
           ),

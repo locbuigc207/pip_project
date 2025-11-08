@@ -76,7 +76,7 @@ class ChatHistoryState extends State<ChatHistoryPage>{
           final lastMessage = conv.lastMessage;
           return ChatHistoryItem(
             title: conv.title,
-            hasRead: (lastMessage == model.groupName), //Sua lai de cap nhat
+            hasRead: (lastMessage == model.groupName),
             onTap: () {
               context.goNamed(
                 AppRoutes.chat.name,

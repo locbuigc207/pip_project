@@ -57,17 +57,14 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
-        // Gọi API login
         final result = await AuthService().login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         if (result['success'] == true) {
-          // Lấy thông tin user từ response
           final userData = result['data'];
 
-          // Lưu thông tin đăng nhập
           final saveSuccess = await AuthManager.saveLoginData(
             userId: userData['id']?.toString() ?? userData['_id']?.toString() ?? 'unknown',
             fullName: userData['full_name'] ?? userData['name'] ?? 'User',
@@ -76,7 +73,6 @@ class _LoginPageState extends State<LoginPage> {
           );
 
           if (saveSuccess && mounted) {
-            // Hiển thị thông báo thành công
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -91,13 +87,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
             );
 
-            // Chuyển đến trang chat history
             await Future.delayed(const Duration(milliseconds: 500));
             if (mounted) {
               context.go(AppRoutes.chat_history.path);
             }
           } else if (mounted) {
-            // Lỗi khi lưu thông tin
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -112,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         } else {
-          // Đăng nhập thất bại
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -130,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
           }
         }
       } catch (e) {
-        // Xử lý lỗi exception
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -170,7 +162,6 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: _isLoading
               ? null
               : () {
-            // Quay về landing page
             context.go(AppRoutes.landing.path);
           },
         ),

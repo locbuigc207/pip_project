@@ -47,10 +47,10 @@ class ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
   List<Widget> mess_ui_list = [];
   List<ChatMessage> chat_list = [];
-  bool hasTyped = false; //Kiem tra nguoi dung da nhap gi chua
+  bool hasTyped = false;
   bool mic = false;
   String? convId;
-  bool hasReponsed = false; //Kiem tra bot da response lai hay chua
+  bool hasReponsed = false;
   int step = 1, upload = 0;
   RequestQuoteModel? requestQuoteModel;
   @override
@@ -124,7 +124,6 @@ class ChatPageState extends State<ChatPage> {
       } else {
         addBotMessage(AppPrompts.errorMess);
       }
-      //thay doi bien upload
       setState(() {
         upload = 0;
       });
@@ -148,7 +147,6 @@ class ChatPageState extends State<ChatPage> {
         }else {
           addSenderChatUI(message);
         }
-        //Lay link cho data
         if(mess.messStep == 6 && isHuman){
           await getMessage(7);
           await getQuoteLink();
@@ -156,7 +154,6 @@ class ChatPageState extends State<ChatPage> {
         }
       }
     }
-    //Cap nhat trang thai cho Hive
     ListMessage lstmess = messages.last;
     String mess = lstmess.message!;
     if(!hasLink || step > 7) {
@@ -325,7 +322,6 @@ class ChatPageState extends State<ChatPage> {
     final newMessage = textEditingController.text.trim();
     if (newMessage.isNotEmpty) {
       addSenderChatUI(newMessage);
-      //Tao Body cho request
       UpdateBodyRequest(newMessage);
       SendMessageModel send = SendMessageModel(
           groupid: convId,
@@ -345,7 +341,6 @@ class ChatPageState extends State<ChatPage> {
       }
       textEditingController.clear();
       scrollToBottom();
-      /// Delay để đảm bảo ListView đã build xong rồi mới cuộn
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -431,24 +426,8 @@ class ChatPageState extends State<ChatPage> {
               ),
             ),
             const SizedBox(height: 16,),
-            // if(step >= 1 && !hasTyped)
-            //   AnimatedSwitcher(
-            //     duration: const Duration(milliseconds: 1000),
-            //     transitionBuilder: (Widget child, Animation<double> animation) {
-            //       return FadeTransition(
-            //         opacity: animation,
-            //         child: child,
-            //       );
-            //     },
-            //     child: Horizional_Listview(
-            //       edtcontroller: textEditingController,
-            //       choice_prompt: AppPrompts.asking_prompt,
-            //     ),
-            //   ),
-            // const SizedBox(height: 8,),
             CustomTextField(
                 controller: textEditingController,
-                // readOnly: hasTyped,
                 hintText: "Input something",
                 maxLines: 4,
                 focusNode: _focusNode,
@@ -462,10 +441,6 @@ class ChatPageState extends State<ChatPage> {
                 },
                 suffixIcon: Container(
                   margin: const EdgeInsets.only(left: 8),
-                  // constraints: const BoxConstraints(
-                  //   maxWidth: 80,
-                  //   minWidth: 40
-                  // ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

@@ -13,7 +13,6 @@ import 'app_routes.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash.path,
   routes: [
-    // Route: Splash Screen
     GoRoute(
       path: AppRoutes.splash.path,
       name: AppRoutes.splash.name,
@@ -25,7 +24,6 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Route: Landing Page (Trang đầu tiên cho người chưa đăng nhập)
     GoRoute(
       path: AppRoutes.landing.path,
       name: AppRoutes.landing.name,
@@ -37,7 +35,6 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Route: Login Page
     GoRoute(
       path: AppRoutes.login.path,
       name: AppRoutes.login.name,
@@ -49,7 +46,6 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Route: Register Page
     GoRoute(
       path: AppRoutes.register.path,
       name: AppRoutes.register.name,
@@ -61,7 +57,6 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
 
-    // Shell Route: Chat & Chat History (Các trang trong app chính)
     ShellRoute(
         builder: (context, state, child) {
           return Scaffold(
@@ -69,7 +64,6 @@ final GoRouter appRouter = GoRouter(
           );
         },
         routes: [
-          // Route: Chat Page
           GoRoute(
             path: AppRoutes.chat.path,
             name: AppRoutes.chat.name,
@@ -93,7 +87,6 @@ final GoRouter appRouter = GoRouter(
             },
           ),
 
-          // Route: Chat History Page
           GoRoute(
               path: AppRoutes.chat_history.path,
               name: AppRoutes.chat_history.name,
@@ -117,7 +110,6 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-/// Slide transition animation (từ phải sang trái)
 Widget _slideTransition(
     BuildContext context,
     Animation<double> animation,

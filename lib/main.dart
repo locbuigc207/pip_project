@@ -11,7 +11,6 @@ void main() async{
   await Hive.initFlutter();
   Hive.registerAdapter(ChatMessageAdapter());
   Hive.registerAdapter(ConversationAdapter());
-  // await AppBoxChat.clearSpecificBox('conversationBox');
   await Hive.openBox<Conversation>('conversationBox');
   runApp(const MyApp());
 }
