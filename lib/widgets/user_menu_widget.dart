@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pippips/routes/app_routes.dart';
+import 'package:pippips/services/auth_service.dart';
 import 'package:pippips/utils/auth_manager.dart';
-import 'package:pippips/utils/boxChat.dart';
 import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
-
 
 class UserMenuWidget extends StatefulWidget {
   const UserMenuWidget({super.key});
@@ -48,7 +47,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error loading user data: $e');
+      print(' Error loading user data: $e');
       if (mounted) {
         setState(() {
           userName = 'User';
@@ -144,7 +143,9 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(color: AppColors.textPrimary),
+                  const CircularProgressIndicator(
+                    color: AppColors.textPrimary,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     isGuest ? 'Đang thoát...' : 'Đang đăng xuất...',
@@ -159,9 +160,16 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         );
       }
 
-      await AuthManager.logout();
-
       if (isGuest) {
+        print(' Guest logout - clearing local data only');
+        await AuthManager.logout();
+      } else {
+        print(' User logout - calling API...');
+        final result = await AuthService().logout();
+
+        if (result['success'] != true) {
+          print(' Logout API returned error, but continuing anyway');
+        }
       }
 
       if (!mounted) return;
@@ -188,7 +196,8 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         context.go(AppRoutes.splash.path);
       });
     } catch (e) {
-      print('Error during logout: $e');
+      print(' Error during logout: $e');
+
       if (!mounted) return;
 
       if (Navigator.of(context, rootNavigator: true).canPop()) {

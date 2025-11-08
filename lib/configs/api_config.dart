@@ -5,6 +5,8 @@ class APIConfig {
 
   static String login = "/auth/login";
   static String register = "/auth/register";
+  static String logout = "/auth/logout";
+  static String refreshToken = "/auth/refresh-token";
   static String verifySession = "/auth/verify-session";
   static String updateSession = "/auth/update-session";
 
@@ -19,4 +21,7 @@ class APIConfig {
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
   static const Duration sendTimeout = Duration(seconds: 30);
+
+  static const Duration tokenRefreshThreshold = Duration(minutes: 5);
+  static const int maxRetryAttempts = 3;
 }

@@ -7,6 +7,7 @@ import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
 import 'package:pippips/utils/icons.dart';
 import 'package:pippips/widgets/custom_text_field.dart';
+import 'package:pippips/models/token_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -57,6 +58,8 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       try {
+        print(' Attempting login for: ${_emailController.text.trim()}');
+
         final result = await AuthService().login(
           email: _emailController.text.trim(),
           password: _passwordController.text,
@@ -64,12 +67,22 @@ class _LoginPageState extends State<LoginPage> {
 
         if (result['success'] == true) {
           final userData = result['data'];
+          final TokenModel token = result['token'];
+
+          print(' Login successful');
+          print('Token expires at: ${token.expiresAt}');
+          print('Token needs refresh: ${token.needsRefresh}');
 
           final saveSuccess = await AuthManager.saveLoginData(
-            userId: userData['id']?.toString() ?? userData['_id']?.toString() ?? 'unknown',
-            fullName: userData['full_name'] ?? userData['name'] ?? 'User',
+            userId: userData['id']?.toString() ??
+                userData['_id']?.toString() ??
+                'unknown',
+            fullName: userData['full_name'] ??
+                userData['name'] ??
+                'User',
             email: userData['email'] ?? _emailController.text.trim(),
-            token: userData['token'],
+            token: token,
+            sessionId: userData['session_id'],
           );
 
           if (saveSuccess && mounted) {
@@ -88,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
             );
 
             await Future.delayed(const Duration(milliseconds: 500));
+
             if (mounted) {
               context.go(AppRoutes.chat_history.path);
             }
@@ -106,11 +120,14 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         } else {
+          print(' Login failed: ${result['message']}');
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  result['message'] ?? 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.',
+                  result['message'] ??
+                      'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.',
                   style: AppFonts.beVietnamRegular14.copyWith(
                     color: AppColors.textWhite,
                   ),
@@ -123,6 +140,8 @@ class _LoginPageState extends State<LoginPage> {
           }
         }
       } catch (e) {
+        print(' Login exception: $e');
+
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
