@@ -2,6 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pippips/pages/ChatHistoryPage/chat_history_page.dart';
+import 'package:pippips/pages/landing_page.dart';
 import '../pages/ChatPage/chat_page.dart';
 import '../pages/LoginPage/login_page.dart';
 import '../pages/LoginPage/register_page.dart';
@@ -12,6 +13,7 @@ import 'app_routes.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: AppRoutes.splash.path,
   routes: [
+    // Route: Splash Screen
     GoRoute(
       path: AppRoutes.splash.path,
       name: AppRoutes.splash.name,
@@ -22,6 +24,20 @@ final GoRouter appRouter = GoRouter(
         transitionsBuilder: _slideTransition,
       ),
     ),
+
+    // Route: Landing Page (Trang đầu tiên cho người chưa đăng nhập)
+    GoRoute(
+      path: AppRoutes.landing.path,
+      name: AppRoutes.landing.name,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
+        child: const LandingPage(),
+        transitionDuration: const Duration(milliseconds: 400),
+        transitionsBuilder: _slideTransition,
+      ),
+    ),
+
+    // Route: Login Page
     GoRoute(
       path: AppRoutes.login.path,
       name: AppRoutes.login.name,
@@ -32,6 +48,8 @@ final GoRouter appRouter = GoRouter(
         transitionsBuilder: _slideTransition,
       ),
     ),
+
+    // Route: Register Page
     GoRoute(
       path: AppRoutes.register.path,
       name: AppRoutes.register.name,
@@ -42,6 +60,8 @@ final GoRouter appRouter = GoRouter(
         transitionsBuilder: _slideTransition,
       ),
     ),
+
+    // Shell Route: Chat & Chat History (Các trang trong app chính)
     ShellRoute(
         builder: (context, state, child) {
           return Scaffold(
@@ -49,6 +69,7 @@ final GoRouter appRouter = GoRouter(
           );
         },
         routes: [
+          // Route: Chat Page
           GoRoute(
             path: AppRoutes.chat.path,
             name: AppRoutes.chat.name,
@@ -72,6 +93,7 @@ final GoRouter appRouter = GoRouter(
             },
           ),
 
+          // Route: Chat History Page
           GoRoute(
               path: AppRoutes.chat_history.path,
               name: AppRoutes.chat_history.name,
@@ -95,6 +117,7 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
+/// Slide transition animation (từ phải sang trái)
 Widget _slideTransition(
     BuildContext context,
     Animation<double> animation,

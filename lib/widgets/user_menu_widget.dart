@@ -6,6 +6,12 @@ import 'package:pippips/utils/boxChat.dart';
 import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
 
+/// UserMenuWidget - Widget hiển thị menu user ở góc phải màn hình
+///
+/// Features:
+/// - Hiển thị thông tin user (tên, email)
+/// - Icon khác nhau cho Guest (màu vàng) và User đã đăng ký (xanh)
+/// - Chức năng logout/exit
 class UserMenuWidget extends StatefulWidget {
   const UserMenuWidget({super.key});
 
@@ -17,6 +23,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
   String userName = '';
   String userEmail = '';
   bool isLoading = true;
+  bool isGuest = false;
 
   @override
   void initState() {
@@ -24,19 +31,28 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
     _loadUserData();
   }
 
+  /// Load thông tin user từ SharedPreferences
   Future<void> _loadUserData() async {
     try {
+      final guestMode = await AuthManager.isGuestMode();
       final userData = await AuthManager.getUserData();
-      if (userData != null && mounted) {
+
+      if (mounted) {
         setState(() {
-          userName = userData['full_name'] ?? 'User';
-          userEmail = userData['email'] ?? '';
-          isLoading = false;
-        });
-      } else if (mounted) {
-        setState(() {
-          userName = 'User';
-          userEmail = 'user@example.com';
+          isGuest = guestMode;
+          if (guestMode) {
+            // Nếu là guest, hiển thị thông tin khách vãng lai
+            userName = 'Khách';
+            userEmail = 'Chế độ khách vãng lai';
+          } else if (userData != null) {
+            // Nếu là user đã đăng ký, hiển thị thông tin thực
+            userName = userData['full_name'] ?? 'User';
+            userEmail = userData['email'] ?? '';
+          } else {
+            // Fallback nếu không có data
+            userName = 'User';
+            userEmail = 'user@example.com';
+          }
           isLoading = false;
         });
       }
@@ -52,6 +68,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
     }
   }
 
+  /// Xử lý logout/exit
   Future<void> _handleLogout() async {
     final shouldLogout = await showDialog<bool>(
       context: context,
@@ -70,15 +87,15 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                 color: AppColors.error.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.logout,
+              child: Icon(
+                isGuest ? Icons.exit_to_app : Icons.logout,
                 color: AppColors.error,
                 size: 24,
               ),
             ),
             const SizedBox(width: 12),
             Text(
-              'Đăng xuất',
+              isGuest ? 'Thoát chế độ khách' : 'Đăng xuất',
               style: AppFonts.beVietnamSemiBold16.copyWith(
                 color: AppColors.textPrimary,
               ),
@@ -86,7 +103,9 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
           ],
         ),
         content: Text(
-          'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
+          isGuest
+              ? 'Lịch sử chat của bạn sẽ được lưu trên thiết bị này. Bạn có chắc muốn thoát?'
+              : 'Bạn có chắc chắn muốn đăng xuất khỏi tài khoản?',
           style: AppFonts.beVietnamRegular14.copyWith(
             color: AppColors.textSecondary,
           ),
@@ -114,7 +133,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
               ),
             ),
             child: Text(
-              'Đăng xuất',
+              isGuest ? 'Thoát' : 'Đăng xuất',
               style: AppFonts.beVietnamMedium14.copyWith(
                 color: AppColors.error,
               ),
@@ -146,7 +165,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Đang đăng xuất...',
+                      isGuest ? 'Đang thoát...' : 'Đang đăng xuất...',
                       style: AppFonts.beVietnamRegular14.copyWith(
                         color: AppColors.textPrimary,
                       ),
@@ -158,21 +177,25 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
           );
         }
 
-        // Đăng xuất và xóa dữ liệu
+        // Đăng xuất
         await AuthManager.logout();
 
-        // Có thể xóa luôn dữ liệu chat nếu muốn
-        // await AppBoxChat.clearSpecificBox('conversationBox');
+        // Nếu là guest, lịch sử chat vẫn được giữ lại trên thiết bị
+        // Nếu là user đã đăng nhập, có thể xóa hoặc giữ tùy yêu cầu
+        if (isGuest) {
+          // Giữ lại local chat history cho guest
+          // Nếu muốn xóa: await AppBoxChat.clearSpecificBox('conversationBox');
+        }
 
-        // Đóng loading dialog
         if (mounted) {
+          // Đóng loading dialog
           Navigator.of(context).pop();
 
           // Hiển thị thông báo thành công
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Đã đăng xuất thành công',
+                isGuest ? 'Đã thoát chế độ khách' : 'Đã đăng xuất thành công',
                 style: AppFonts.beVietnamRegular14.copyWith(
                   color: AppColors.textWhite,
                 ),
@@ -183,10 +206,10 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
             ),
           );
 
-          // Chuyển về trang login
+          // Chuyển về trang landing
           await Future.delayed(const Duration(milliseconds: 500));
           if (mounted) {
-            context.go(AppRoutes.login.path);
+            context.go(AppRoutes.landing.path);
           }
         }
       } catch (e) {
@@ -230,14 +253,15 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.greyBorder,
-            width: 1,
+            color: isGuest ? AppColors.warning : AppColors.greyBorder,
+            width: isGuest ? 2 : 1,
           ),
         ),
-        child: const Icon(
-          Icons.account_circle,
+        child: Icon(
+          // Icon khác nhau cho Guest và User đã đăng ký
+          isGuest ? Icons.person_off_outlined : Icons.account_circle,
           size: 32,
-          color: AppColors.textPrimary,
+          color: isGuest ? AppColors.warning : AppColors.textPrimary,
         ),
       ),
       itemBuilder: (BuildContext context) => [
@@ -255,7 +279,12 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [
+                        colors: isGuest
+                            ? [
+                          AppColors.warning.withOpacity(0.8),
+                          AppColors.warning,
+                        ]
+                            : [
                           AppColors.deliveredStatus.withOpacity(0.8),
                           AppColors.deliveredStatus,
                         ],
@@ -265,14 +294,15 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.deliveredStatus.withOpacity(0.3),
+                          color: (isGuest ? AppColors.warning : AppColors.deliveredStatus)
+                              .withOpacity(0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.person,
+                    child: Icon(
+                      isGuest ? Icons.person_off : Icons.person,
                       color: AppColors.textWhite,
                       size: 24,
                     ),
@@ -315,7 +345,8 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                           Text(
                             userEmail,
                             style: AppFonts.beVietnamRegular12.copyWith(
-                              color: AppColors.textSecondary,
+                              color: isGuest ? AppColors.warning : AppColors.textSecondary,
+                              fontStyle: isGuest ? FontStyle.italic : FontStyle.normal,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -336,7 +367,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
             ],
           ),
         ),
-        // Logout Button
+        // Logout/Exit Button
         PopupMenuItem<String>(
           value: 'logout',
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -355,15 +386,15 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                   color: AppColors.error.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(
-                  Icons.logout,
+                child: Icon(
+                  isGuest ? Icons.exit_to_app : Icons.logout,
                   color: AppColors.error,
                   size: 20,
                 ),
               ),
               const SizedBox(width: 12),
               Text(
-                'Đăng xuất',
+                isGuest ? 'Thoát chế độ khách' : 'Đăng xuất',
                 style: AppFonts.beVietnamMedium14.copyWith(
                   color: AppColors.error,
                 ),

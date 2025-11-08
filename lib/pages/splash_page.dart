@@ -22,16 +22,17 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
 
     Timer(const Duration(seconds: 4), () async {
-      // Kiểm tra xem user đã đăng nhập chưa
+      // Kiểm tra xem user đã đăng nhập hoặc đang dùng guest mode
       final isLoggedIn = await AuthManager.isLoggedIn();
+      final isGuest = await AuthManager.isGuestMode();
 
       if (mounted) {
-        if (isLoggedIn) {
-          // Đã đăng nhập -> đi đến chat history
+        if (isLoggedIn || isGuest) {
+          // Đã đăng nhập hoặc đang dùng guest mode -> đi đến chat history
           context.go(AppRoutes.chat_history.path);
         } else {
-          // Chưa đăng nhập -> đi đến login
-          context.go(AppRoutes.login.path);
+          // Chưa đăng nhập và không phải guest -> đi đến landing page
+          context.go(AppRoutes.landing.path);
         }
       }
     });
