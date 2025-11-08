@@ -1,32 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pippips/routes/app_routes.dart';
 import 'package:pippips/services/auth_service.dart';
-import 'package:pippips/utils/auth_manager.dart';
 import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
 import 'package:pippips/utils/icons.dart';
+import 'package:pippips/widgets/custom_app_bar.dart';
 import 'package:pippips/widgets/custom_text_field.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  String? _validateFullName(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Vui lòng nhập họ tên';
+    }
+    if (value.trim().length < 2) {
+      return 'Họ tên phải có ít nhất 2 ký tự';
+    }
+    return null;
   }
 
   String? _validateEmail(String? value) {
@@ -50,81 +64,69 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  Future<void> _handleLogin() async {
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Vui lòng xác nhận mật khẩu';
+    }
+    if (value != _passwordController.text) {
+      return 'Mật khẩu xác nhận không khớp';
+    }
+    return null;
+  }
+
+  Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
       try {
-        // Gọi API login
-        final result = await AuthService().login(
+        // Gọi API đăng ký
+        final result = await AuthService().register(
+          fullName: _fullNameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
         if (result['success'] == true) {
-          // Lấy thông tin user từ response
-          final userData = result['data'];
-
-          // Lưu thông tin đăng nhập
-          final saveSuccess = await AuthManager.saveLoginData(
-            userId: userData['id']?.toString() ?? userData['_id']?.toString() ?? 'unknown',
-            fullName: userData['full_name'] ?? userData['name'] ?? 'User',
-            email: userData['email'] ?? _emailController.text.trim(),
-            token: userData['token'],
-          );
-
-          if (saveSuccess && mounted) {
+          if (mounted) {
             // Hiển thị thông báo thành công
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Đăng nhập thành công!',
+                  'Đăng ký thành công! Vui lòng đăng nhập.',
                   style: AppFonts.beVietnamRegular14.copyWith(
                     color: AppColors.textWhite,
                   ),
                 ),
                 backgroundColor: AppColors.success,
                 behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 1),
+                duration: const Duration(seconds: 2),
               ),
             );
 
-            // Chuyển đến trang chat history
-            await Future.delayed(const Duration(milliseconds: 500));
+            // Đợi một chút để user đọc thông báo
+            await Future.delayed(const Duration(milliseconds: 1500));
+
+            // Quay lại trang login
             if (mounted) {
-              context.go(AppRoutes.chat_history.path);
+              context.pop();
             }
-          } else if (mounted) {
-            // Lỗi khi lưu thông tin
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Có lỗi xảy ra khi lưu thông tin. Vui lòng thử lại.',
-                  style: AppFonts.beVietnamRegular14.copyWith(
-                    color: AppColors.textWhite,
-                  ),
-                ),
-                backgroundColor: AppColors.error,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
           }
         } else {
-          // Đăng nhập thất bại
+          // Đăng ký thất bại
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  result['message'] ?? 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.',
+                  result['message'] ?? 'Đăng ký thất bại. Vui lòng thử lại.',
                   style: AppFonts.beVietnamRegular14.copyWith(
                     color: AppColors.textWhite,
                   ),
                 ),
                 backgroundColor: AppColors.error,
                 behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 2),
+                duration: const Duration(seconds: 3),
               ),
             );
           }
@@ -159,6 +161,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundMain,
+      appBar: CustomAppBar(
+        title: 'Đăng ký',
+        goBack: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -168,11 +174,11 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   // Logo
                   Container(
-                    width: 120,
-                    height: 120,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -180,21 +186,36 @@ class _LoginPageState extends State<LoginPage> {
                     child: AppIcons.PippipLogo,
                   ),
                   const SizedBox(height: 24),
-                  // Title
                   Text(
-                    'Đăng nhập',
-                    style: AppFonts.beVietnamBold20.copyWith(
+                    'Tạo tài khoản mới',
+                    style: AppFonts.beVietnamBold18.copyWith(
                       color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Chào mừng bạn trở lại!',
+                    'Điền thông tin để bắt đầu',
                     style: AppFonts.beVietnamRegular14.copyWith(
                       color: AppColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
+                  // Full Name Field
+                  CustomTextField(
+                    controller: _fullNameController,
+                    hintText: 'Họ và tên',
+                    keyboardType: TextInputType.name,
+                    prefixIcon: const Icon(
+                      Icons.person_outline,
+                      color: AppColors.textSecondary,
+                    ),
+                    validator: _validateFullName,
+                    borderColor: AppColors.greyBorder,
+                    fillColor: AppColors.textBoxBackground,
+                    filled: true,
+                    enabled: !_isLoading,
+                  ),
+                  const SizedBox(height: 16),
                   // Email Field
                   CustomTextField(
                     controller: _emailController,
@@ -239,13 +260,42 @@ class _LoginPageState extends State<LoginPage> {
                     filled: true,
                     enabled: !_isLoading,
                   ),
-                  const SizedBox(height: 24),
-                  // Login Button
+                  const SizedBox(height: 16),
+                  // Confirm Password Field
+                  CustomTextField(
+                    controller: _confirmPasswordController,
+                    hintText: 'Xác nhận mật khẩu',
+                    obscureText: !_isConfirmPasswordVisible,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: AppColors.textSecondary,
+                    ),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+                        });
+                      },
+                      child: Icon(
+                        _isConfirmPasswordVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    validator: _validateConfirmPassword,
+                    borderColor: AppColors.greyBorder,
+                    fillColor: AppColors.textBoxBackground,
+                    filled: true,
+                    enabled: !_isLoading,
+                  ),
+                  const SizedBox(height: 32),
+                  // Register Button
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleLogin,
+                      onPressed: _isLoading ? null : _handleRegister,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.textPrimary,
                         disabledBackgroundColor: AppColors.textSecondary,
@@ -264,7 +314,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       )
                           : Text(
-                        'Đăng nhập',
+                        'Đăng ký',
                         style: AppFonts.robotoMedium16.copyWith(
                           color: AppColors.textWhite,
                         ),
@@ -272,12 +322,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // Register Link
+                  // Back to Login Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Bạn chưa có tài khoản? ',
+                        'Đã có tài khoản? ',
                         style: AppFonts.beVietnamRegular14.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -286,10 +336,10 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: _isLoading
                             ? null
                             : () {
-                          context.push(AppRoutes.register.path);
+                          context.pop();
                         },
                         child: Text(
-                          'Đăng ký',
+                          'Đăng nhập',
                           style: AppFonts.beVietnamMedium14.copyWith(
                             color: _isLoading
                                 ? AppColors.textSecondary

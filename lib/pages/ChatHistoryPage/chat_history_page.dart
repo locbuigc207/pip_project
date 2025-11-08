@@ -13,6 +13,7 @@ import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/icons.dart';
 import 'package:pippips/utils/prompts.dart';
 import 'package:pippips/widgets/custom_app_bar.dart';
+import 'package:pippips/widgets/user_menu_widget.dart';
 
 import '../../utils/fonts.dart';
 import '../../widgets/loading_widget.dart';
@@ -94,15 +95,15 @@ class ChatHistoryState extends State<ChatHistoryPage>{
       setState(() {
         historyList.add(
           Center(
-            child: Column(
-              children: [
-                AppIcons.NotFound,
-                // const SizedBox(height: 8,),
-                Text( "No Data",
-                  style: AppFonts.beVietnamRegular14.copyWith(color: AppColors.textPrimary),
-                ),
-              ],
-            )
+              child: Column(
+                children: [
+                  AppIcons.NotFound,
+                  // const SizedBox(height: 8,),
+                  Text( "No Data",
+                    style: AppFonts.beVietnamRegular14.copyWith(color: AppColors.textPrimary),
+                  ),
+                ],
+              )
           ),
         );
       });
@@ -147,6 +148,10 @@ class ChatHistoryState extends State<ChatHistoryPage>{
         appBar: CustomAppBar(
           title: AppPrompts.chatHistory,
           goBack: false,
+          rightscr: Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: const UserMenuWidget(),
+          ),
         ),
         body: Container(
           padding: const EdgeInsets.fromLTRB(16,0,16,16),

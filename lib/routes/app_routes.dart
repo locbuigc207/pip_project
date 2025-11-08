@@ -12,8 +12,13 @@ class AppRoutes {
   );
 
   static const AppRouteInfo login = AppRouteInfo(
-    name: 'Login Page',
+    name: 'Login_Page',
     path: '/login',
+  );
+
+  static const AppRouteInfo register = AppRouteInfo(
+    name: 'Register_Page',
+    path: '/register',
   );
 
   static const AppRouteInfo chat = AppRouteInfo(
@@ -26,7 +31,5 @@ class AppRoutes {
       path: '/chat_history'
   );
 
-  // static const String userIdParam = 'userId';
-
-  static List<AppRouteInfo> get all => [splash, login, chat, chat_history];
+  static List<AppRouteInfo> get all => [splash, login, register, chat, chat_history];
 }

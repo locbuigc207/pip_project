@@ -21,6 +21,7 @@ import 'package:pippips/pages/ChatPage/widgets/answer_text_box.dart';
 import 'package:pippips/widgets/custom_app_bar.dart';
 import 'package:pippips/widgets/custom_text_field.dart';
 import 'package:pippips/widgets/loading_widget.dart';
+import 'package:pippips/widgets/user_menu_widget.dart';
 import '../../services/get_quote.dart';
 import '../../widgets/horizonal_listview.dart';
 import '../../widgets/microphone.dart';
@@ -308,10 +309,10 @@ class ChatPageState extends State<ChatPage> {
     final pack = await AppBoxChat.getConversationById(convId!);
     if(pack == null) {
       Conversation conv = Conversation(
-          id: convId!,
-          title: newMessage,
-          lastMessage: newMessage,
-          hasRead: true,
+        id: convId!,
+        title: newMessage,
+        lastMessage: newMessage,
+        hasRead: true,
       );
       await AppBoxChat.saveConversation(conv);
     }else{
@@ -327,10 +328,10 @@ class ChatPageState extends State<ChatPage> {
       //Tao Body cho request
       UpdateBodyRequest(newMessage);
       SendMessageModel send = SendMessageModel(
-        groupid: convId,
-        message: newMessage,
-        step: step,
-        sender: 1
+          groupid: convId,
+          message: newMessage,
+          step: step,
+          sender: 1
       );
       final group = await SendMessageService().sendMessage(send);
       if(group["success"] == true){
@@ -397,130 +398,121 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.backgroundMain,
-        appBar: CustomAppBar(
-          title: "Chats",
-          goBack: false,
-          leftscr: GestureDetector(
-              onTap: () => context.pushNamed(
-                  AppRoutes.chat_history.name,
-                  extra: {'prevPage' : AppRoutes.chat.name}
-              ),
-              child: Container(
-                margin: const EdgeInsets.only(left: 16),
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(0)),
-                clipBehavior: Clip.antiAlias,
-                child: AppIcons.MenuIcon,
-              )
-          ),
-          rightscr: GestureDetector(
-              onTap: (){}, //test save
-              child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                clipBehavior: Clip.antiAlias,
-                margin: const EdgeInsets.only(right: 16),
-                child: AppIcons.UserIcon,
-              )
-          ),
+      backgroundColor: AppColors.backgroundMain,
+      appBar: CustomAppBar(
+        title: "Chats",
+        goBack: false,
+        leftscr: GestureDetector(
+            onTap: () => context.pushNamed(
+                AppRoutes.chat_history.name,
+                extra: {'prevPage' : AppRoutes.chat.name}
+            ),
+            child: Container(
+              margin: const EdgeInsets.only(left: 16),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(0)),
+              clipBehavior: Clip.antiAlias,
+              child: AppIcons.MenuIcon,
+            )
         ),
-        body: Container(
-          margin: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: mess_ui_list.length,
-                  itemBuilder: (context, index) => mess_ui_list[index],
-                ),
-              ),
-              const SizedBox(height: 16,),
-              // if(step >= 1 && !hasTyped)
-              //   AnimatedSwitcher(
-              //     duration: const Duration(milliseconds: 1000),
-              //     transitionBuilder: (Widget child, Animation<double> animation) {
-              //       return FadeTransition(
-              //         opacity: animation,
-              //         child: child,
-              //       );
-              //     },
-              //     child: Horizional_Listview(
-              //       edtcontroller: textEditingController,
-              //       choice_prompt: AppPrompts.asking_prompt,
-              //     ),
-              //   ),
-              // const SizedBox(height: 8,),
-              CustomTextField(
-                  controller: textEditingController,
-                  // readOnly: hasTyped,
-                  hintText: "Input something",
-                  maxLines: 4,
-                  focusNode: _focusNode,
-                  onSubmitted: (value) {
-                    if(!hasTyped == true && upload == 0){
-                      setState(() {
-                        upload = 1;
-                      });
-                      _addMessage();
-                    }
-                  },
-                  suffixIcon: Container(
-                    margin: const EdgeInsets.only(left: 8),
-                    // constraints: const BoxConstraints(
-                    //   maxWidth: 80,
-                    //   minWidth: 40
-                    // ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GestureDetector(
-                          onTap: (){
-                            if (_focusNode.hasFocus) {
-                              FocusScope.of(context).unfocus();
-                            }
-                            setState(() {
-                              mic = !mic;
-                            });
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: AppIcons.TalkMessage,
-                          ),
-                        ),
-                        const SizedBox(width: 8,),
-                        GestureDetector(
-                          onTap: (hasTyped && upload != 0)? null : (){
-                            setState(() {
-                              upload = 1;
-                            });
-                            _addMessage();
-                          },
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: AppIcons.SendMessage,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-              ),
-              if(mic) MicroPhone(controller: textEditingController),
-            ],
-          ),
+        rightscr: Container(
+          margin: const EdgeInsets.only(right: 16),
+          child: const UserMenuWidget(),
         ),
+      ),
+      body: Container(
+        margin: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                itemCount: mess_ui_list.length,
+                itemBuilder: (context, index) => mess_ui_list[index],
+              ),
+            ),
+            const SizedBox(height: 16,),
+            // if(step >= 1 && !hasTyped)
+            //   AnimatedSwitcher(
+            //     duration: const Duration(milliseconds: 1000),
+            //     transitionBuilder: (Widget child, Animation<double> animation) {
+            //       return FadeTransition(
+            //         opacity: animation,
+            //         child: child,
+            //       );
+            //     },
+            //     child: Horizional_Listview(
+            //       edtcontroller: textEditingController,
+            //       choice_prompt: AppPrompts.asking_prompt,
+            //     ),
+            //   ),
+            // const SizedBox(height: 8,),
+            CustomTextField(
+                controller: textEditingController,
+                // readOnly: hasTyped,
+                hintText: "Input something",
+                maxLines: 4,
+                focusNode: _focusNode,
+                onSubmitted: (value) {
+                  if(!hasTyped == true && upload == 0){
+                    setState(() {
+                      upload = 1;
+                    });
+                    _addMessage();
+                  }
+                },
+                suffixIcon: Container(
+                  margin: const EdgeInsets.only(left: 8),
+                  // constraints: const BoxConstraints(
+                  //   maxWidth: 80,
+                  //   minWidth: 40
+                  // ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                        onTap: (){
+                          if (_focusNode.hasFocus) {
+                            FocusScope.of(context).unfocus();
+                          }
+                          setState(() {
+                            mic = !mic;
+                          });
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: AppIcons.TalkMessage,
+                        ),
+                      ),
+                      const SizedBox(width: 8,),
+                      GestureDetector(
+                        onTap: (hasTyped && upload != 0)? null : (){
+                          setState(() {
+                            upload = 1;
+                          });
+                          _addMessage();
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: AppIcons.SendMessage,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ),
+            if(mic) MicroPhone(controller: textEditingController),
+          ],
+        ),
+      ),
     );
 
 
 
   }
 }
-
-
