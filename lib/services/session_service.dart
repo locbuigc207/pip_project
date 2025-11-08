@@ -130,7 +130,7 @@ class SessionService {
   }) async {
     try {
       final response = await dio.post(
-        '/auth/force-logout', // Endpoint tùy chọn
+        '/auth/force-logout', // Endpoint tùy chọn - cần thêm vào APIConfig nếu backend implement
         data: {
           'user_id': userId,
         },

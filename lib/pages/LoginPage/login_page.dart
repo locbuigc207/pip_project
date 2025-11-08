@@ -159,6 +159,22 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundMain,
+      appBar: AppBar(
+        backgroundColor: AppColors.backgroundMain,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: AppColors.textPrimary,
+          ),
+          onPressed: _isLoading
+              ? null
+              : () {
+            // Quay về landing page
+            context.go(AppRoutes.landing.path);
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -168,7 +184,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   // Logo
                   Container(
                     width: 120,
