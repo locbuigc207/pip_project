@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pippips/routes/app_routes.dart';
 import 'package:pippips/services/auth_service.dart';
 import 'package:pippips/utils/auth_manager.dart';
@@ -16,6 +18,7 @@ class UserMenuWidget extends StatefulWidget {
 class _UserMenuWidgetState extends State<UserMenuWidget> {
   String userName = '';
   String userEmail = '';
+  String? avatarPath;
   bool isLoading = true;
   bool isGuest = false;
 
@@ -40,6 +43,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         } else if (userData != null) {
           userName = userData['full_name'] ?? 'User';
           userEmail = userData['email'] ?? '';
+          avatarPath = userData['avatar'];
         } else {
           userName = 'User';
           userEmail = 'user@example.com';
@@ -47,7 +51,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         isLoading = false;
       });
     } catch (e) {
-      print(' Error loading user data: $e');
+      print('Error loading user data: $e');
       if (mounted) {
         setState(() {
           userName = 'User';
@@ -55,6 +59,18 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
           isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _pickAvatar() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      setState(() {
+        avatarPath = picked.path;
+      });
+
+
     }
   }
 
@@ -161,14 +177,11 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       }
 
       if (isGuest) {
-        print(' Guest logout - clearing local data only');
         await AuthManager.logout();
       } else {
-        print(' User logout - calling API...');
         final result = await AuthService().logout();
-
         if (result['success'] != true) {
-          print(' Logout API returned error, but continuing anyway');
+          print('Logout API returned error, continuing anyway');
         }
       }
 
@@ -196,14 +209,11 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
         context.go(AppRoutes.splash.path);
       });
     } catch (e) {
-      print(' Error during logout: $e');
-
+      print('Error during logout: $e');
       if (!mounted) return;
-
       if (Navigator.of(context, rootNavigator: true).canPop()) {
         Navigator.of(context, rootNavigator: true).pop();
       }
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -224,28 +234,41 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       offset: const Offset(0, 50),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: AppColors.greyBorder,
-          width: 1,
-        ),
+        side: BorderSide(color: AppColors.greyBorder, width: 1),
       ),
       color: AppColors.backgroundMain,
       elevation: 8,
       padding: EdgeInsets.zero,
+
       child: Container(
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: isGuest ? AppColors.warning : AppColors.greyBorder,
-            width: isGuest ? 2 : 1,
-          ),
+          color: isGuest
+              ? AppColors.greyBorder.withOpacity(0.4)
+              : Colors.transparent,
+          border: isGuest
+              ? null
+              : Border.all(color: AppColors.greyBorder, width: 1),
+          image: (!isGuest && avatarPath != null)
+              ? DecorationImage(
+            image: FileImage(File(avatarPath!)),
+            fit: BoxFit.cover,
+          )
+              : null,
         ),
-        child: Icon(
-          isGuest ? Icons.person_off_outlined : Icons.account_circle,
-          size: 32,
-          color: isGuest ? AppColors.warning : AppColors.textPrimary,
-        ),
+        child: (isGuest || avatarPath == null)
+            ? Icon(
+          Icons.person,
+          size: 28,
+          color: isGuest
+              ? AppColors.textSecondary.withOpacity(0.7)
+              : AppColors.textPrimary,
+        )
+            : null,
       ),
+
       itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           enabled: false,
@@ -256,38 +279,46 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isGuest
-                            ? [
-                          AppColors.warning.withOpacity(0.8),
-                          AppColors.warning,
-                        ]
-                            : [
-                          AppColors.deliveredStatus.withOpacity(0.8),
-                          AppColors.deliveredStatus,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isGuest
-                              ? AppColors.warning
-                              : AppColors.deliveredStatus)
-                              .withOpacity(0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                  GestureDetector(
+                    onTap: isGuest ? null : _pickAvatar,
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        CircleAvatar(
+                          radius: 24,
+                          backgroundColor:
+                          isGuest ? AppColors.greyBorder.withOpacity(0.3) : null,
+                          backgroundImage: (!isGuest && avatarPath != null)
+                              ? FileImage(File(avatarPath!))
+                              : null,
+                          child: (isGuest || avatarPath == null)
+                              ? Icon(
+                            Icons.person,
+                            color: AppColors.textSecondary.withOpacity(0.8),
+                            size: 28,
+                          )
+                              : null,
                         ),
+                        if (!isGuest)
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: AppColors.backgroundMain,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.15),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt_rounded,
+                              size: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
                       ],
-                    ),
-                    child: Icon(
-                      isGuest ? Icons.person_off : Icons.person,
-                      color: AppColors.textWhite,
-                      size: 24,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -325,7 +356,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                             userEmail,
                             style: AppFonts.beVietnamRegular12.copyWith(
                               color: isGuest
-                                  ? AppColors.warning
+                                  ? AppColors.textSecondary
                                   : AppColors.textSecondary,
                               fontStyle: isGuest
                                   ? FontStyle.italic
@@ -347,7 +378,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
             ],
           ),
         ),
-
         PopupMenuItem<String>(
           value: 'logout',
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
