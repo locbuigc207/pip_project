@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
-
 class APIConfig {
   static String baseUrl = "https://ppapi1.adevz.com/api";
 
-  static String login = "/auth-user/login";
-  static String register = "/auth-user/register";
-  static String logout = "/auth-user/logout";
+  static String login = "/auth-customer/login2";
+  static String register = "/auth-customer/register";
+  static String logout = "/auth-customer/logout2";
   static String refreshToken = "/auth-user/refresh-token";
   static String verifySession = "/auth-user/verify-session";
   static String updateSession = "/auth-user/update-session";

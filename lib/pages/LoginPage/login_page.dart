@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pippips/models/token_model.dart';
 import 'package:pippips/routes/app_routes.dart';
 import 'package:pippips/services/auth_service.dart';
 import 'package:pippips/utils/auth_manager.dart';
@@ -7,7 +8,6 @@ import 'package:pippips/utils/colors.dart';
 import 'package:pippips/utils/fonts.dart';
 import 'package:pippips/utils/icons.dart';
 import 'package:pippips/widgets/custom_text_field.dart';
-import 'package:pippips/models/token_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -77,10 +77,8 @@ class _LoginPageState extends State<LoginPage> {
             userId: userData['id']?.toString() ??
                 userData['_id']?.toString() ??
                 'unknown',
-            fullName: userData['full_name'] ??
-                userData['name'] ??
-                'User',
-            email: userData['email'] ?? _emailController.text.trim(),
+            fullName: userData['name'] ?? userData['name'] ?? 'User',
+            email: userData['identifier'] ?? _emailController.text.trim(),
             token: token,
             sessionId: userData['session_id'],
           );
@@ -181,8 +179,8 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: _isLoading
               ? null
               : () {
-            context.go(AppRoutes.landing.path);
-          },
+                  context.go(AppRoutes.landing.path);
+                },
         ),
       ),
       body: SafeArea(
@@ -224,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
                   // Email Field
                   CustomTextField(
                     controller: _emailController,
-                    hintText: 'Email',
+                    hintText: 'identifier',
                     keyboardType: TextInputType.emailAddress,
                     prefixIcon: const Icon(
                       Icons.email_outlined,
@@ -282,19 +280,19 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: _isLoading
                           ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: AppColors.textWhite,
-                          strokeWidth: 2,
-                        ),
-                      )
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: AppColors.textWhite,
+                                strokeWidth: 2,
+                              ),
+                            )
                           : Text(
-                        'Đăng nhập',
-                        style: AppFonts.robotoMedium16.copyWith(
-                          color: AppColors.textWhite,
-                        ),
-                      ),
+                              'Đăng nhập',
+                              style: AppFonts.robotoMedium16.copyWith(
+                                color: AppColors.textWhite,
+                              ),
+                            ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -312,8 +310,8 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: _isLoading
                             ? null
                             : () {
-                          context.push(AppRoutes.register.path);
-                        },
+                                context.push(AppRoutes.register.path);
+                              },
                         child: Text(
                           'Đăng ký',
                           style: AppFonts.beVietnamMedium14.copyWith(

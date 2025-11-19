@@ -15,8 +15,8 @@ class UserModel {
 
   UserModel.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? json['_id'];
-    fullName = json['full_name'];
-    email = json['email'];
+    fullName = json['name'];
+    email = json['identifier'];
     password = json['password'];
     createdAt = json['created_at'] ?? json['createdAt'];
   }
@@ -24,8 +24,8 @@ class UserModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
     if (id != null) data['id'] = id;
-    if (fullName != null) data['full_name'] = fullName;
-    if (email != null) data['email'] = email;
+    if (fullName != null) data['name'] = fullName;
+    if (email != null) data['identifier'] = email;
     if (password != null) data['password'] = password;
     if (createdAt != null) data['created_at'] = createdAt;
     return data;

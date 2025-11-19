@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -41,12 +42,9 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
           userName = 'Khách';
           userEmail = 'Chế độ khách vãng lai';
         } else if (userData != null) {
-          userName = userData['full_name'] ?? 'User';
-          userEmail = userData['email'] ?? '';
+          userName = userData['name'] ?? '';
+          userEmail = userData['identifier'] ?? '';
           avatarPath = userData['avatar'];
-        } else {
-          userName = 'User';
-          userEmail = 'user@example.com';
         }
         isLoading = false;
       });
@@ -54,7 +52,7 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       print('Error loading user data: $e');
       if (mounted) {
         setState(() {
-          userName = 'User';
+          userName = '';
           userEmail = '';
           isLoading = false;
         });
@@ -69,8 +67,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       setState(() {
         avatarPath = picked.path;
       });
-
-
     }
   }
 
@@ -239,7 +235,6 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
       color: AppColors.backgroundMain,
       elevation: 8,
       padding: EdgeInsets.zero,
-
       child: Container(
         width: 40,
         height: 40,
@@ -253,22 +248,21 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
               : Border.all(color: AppColors.greyBorder, width: 1),
           image: (!isGuest && avatarPath != null)
               ? DecorationImage(
-            image: FileImage(File(avatarPath!)),
-            fit: BoxFit.cover,
-          )
+                  image: FileImage(File(avatarPath!)),
+                  fit: BoxFit.cover,
+                )
               : null,
         ),
         child: (isGuest || avatarPath == null)
             ? Icon(
-          Icons.person,
-          size: 28,
-          color: isGuest
-              ? AppColors.textSecondary.withOpacity(0.7)
-              : AppColors.textPrimary,
-        )
+                Icons.person,
+                size: 28,
+                color: isGuest
+                    ? AppColors.textSecondary.withOpacity(0.7)
+                    : AppColors.textPrimary,
+              )
             : null,
       ),
-
       itemBuilder: (BuildContext context) => [
         PopupMenuItem<String>(
           enabled: false,
@@ -286,17 +280,19 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                       children: [
                         CircleAvatar(
                           radius: 24,
-                          backgroundColor:
-                          isGuest ? AppColors.greyBorder.withOpacity(0.3) : null,
+                          backgroundColor: isGuest
+                              ? AppColors.greyBorder.withOpacity(0.3)
+                              : null,
                           backgroundImage: (!isGuest && avatarPath != null)
                               ? FileImage(File(avatarPath!))
                               : null,
                           child: (isGuest || avatarPath == null)
                               ? Icon(
-                            Icons.person,
-                            color: AppColors.textSecondary.withOpacity(0.8),
-                            size: 28,
-                          )
+                                  Icons.person,
+                                  color:
+                                      AppColors.textSecondary.withOpacity(0.8),
+                                  size: 28,
+                                )
                               : null,
                         ),
                         if (!isGuest)
@@ -325,48 +321,48 @@ class _UserMenuWidgetState extends State<UserMenuWidget> {
                   Expanded(
                     child: isLoading
                         ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 100,
-                          height: 16,
-                          color: AppColors.greyBorder,
-                        ),
-                        const SizedBox(height: 4),
-                        Container(
-                          width: 140,
-                          height: 12,
-                          color: AppColors.greyBorder,
-                        ),
-                      ],
-                    )
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 100,
+                                height: 16,
+                                color: AppColors.greyBorder,
+                              ),
+                              const SizedBox(height: 4),
+                              Container(
+                                width: 140,
+                                height: 12,
+                                color: AppColors.greyBorder,
+                              ),
+                            ],
+                          )
                         : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          userName,
-                          style: AppFonts.beVietnamSemiBold16.copyWith(
-                            color: AppColors.textPrimary,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName,
+                                style: AppFonts.beVietnamSemiBold16.copyWith(
+                                  color: AppColors.textPrimary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (userEmail.isNotEmpty)
+                                Text(
+                                  userEmail,
+                                  style: AppFonts.beVietnamRegular12.copyWith(
+                                    color: isGuest
+                                        ? AppColors.textSecondary
+                                        : AppColors.textSecondary,
+                                    fontStyle: isGuest
+                                        ? FontStyle.italic
+                                        : FontStyle.normal,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (userEmail.isNotEmpty)
-                          Text(
-                            userEmail,
-                            style: AppFonts.beVietnamRegular12.copyWith(
-                              color: isGuest
-                                  ? AppColors.textSecondary
-                                  : AppColors.textSecondary,
-                              fontStyle: isGuest
-                                  ? FontStyle.italic
-                                  : FontStyle.normal,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                      ],
-                    ),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
 import 'package:pippips/models/token_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthManager {
   static const String _keyIsLoggedIn = 'is_logged_in';
@@ -9,7 +10,6 @@ class AuthManager {
   static const String _keyIsGuest = 'is_guest_mode';
   static const String _keySessionId = 'session_id';
   static const String _keyDeviceId = 'device_id';
-
 
   static Future<bool> saveLoginData({
     required String userId,
@@ -23,8 +23,8 @@ class AuthManager {
 
       final userData = {
         'user_id': userId,
-        'full_name': fullName,
-        'email': email,
+        'name': fullName,
+        'identifier': email,
       };
 
       await prefs.setBool(_keyIsLoggedIn, true);
@@ -107,14 +107,14 @@ class AuthManager {
     }
   }
 
-
   static Future<String> getDeviceId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String? deviceId = prefs.getString(_keyDeviceId);
 
       if (deviceId == null) {
-        deviceId = 'device_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
+        deviceId =
+            'device_${DateTime.now().millisecondsSinceEpoch}_${DateTime.now().microsecond}';
         await prefs.setString(_keyDeviceId, deviceId);
         print(' New device ID created: $deviceId');
       }
@@ -148,7 +148,6 @@ class AuthManager {
     }
   }
 
-
   static Future<bool> enableGuestMode() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -157,8 +156,9 @@ class AuthManager {
 
       final guestData = {
         'user_id': 'guest',
-        'full_name': 'Khách',
-        'email': 'guest@local',
+        'name': 'Khách',
+        'identifier'
+            '': 'guest@local',
       };
       await prefs.setString(_keyUserData, jsonEncode(guestData));
 
@@ -221,7 +221,6 @@ class AuthManager {
       return null;
     }
   }
-
 
   static Future<bool> logout() async {
     try {

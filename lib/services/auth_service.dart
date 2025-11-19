@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:pippips/configs/api_config.dart';
-import 'package:pippips/configs/dio_client.dart';
 import 'package:pippips/configs/api_error_handler.dart';
+import 'package:pippips/configs/dio_client.dart';
 import 'package:pippips/models/token_model.dart';
 import 'package:pippips/utils/auth_manager.dart';
 
 class AuthService {
   final DioClient dio = DioClient();
-
 
   Future<Map<String, dynamic>> login({
     required String email,
@@ -19,7 +18,7 @@ class AuthService {
       final response = await dio.post(
         APIConfig.login,
         data: {
-          'email': email,
+          'identifier': email,
           'password': password,
           'device_id': deviceId,
         },
@@ -54,18 +53,11 @@ class AuthService {
         };
       }
     } on DioException catch (e) {
-      return {
-        "success": false,
-        "message": ApiErrorHandler.handleError(e)
-      };
+      return {"success": false, "message": ApiErrorHandler.handleError(e)};
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Lỗi không xác định: $e"
-      };
+      return {"success": false, "message": "Lỗi không xác định: $e"};
     }
   }
-
 
   Future<Map<String, dynamic>> register({
     required String fullName,
@@ -76,8 +68,8 @@ class AuthService {
       final response = await dio.post(
         APIConfig.register,
         data: {
-          'full_name': fullName,
-          'email': email,
+          'name': fullName,
+          'identifier': email,
           'password': password,
         },
       );
@@ -102,21 +94,15 @@ class AuthService {
         };
       }
     } on DioException catch (e) {
-      final mess = e.response?.data is Map && e.response?.data["message"] != null
-          ? e.response?.data["message"]
-          : ApiErrorHandler.handleError(e);
-      return {
-        "success": false,
-        "message": mess
-      };
+      final mess =
+          e.response?.data is Map && e.response?.data["message"] != null
+              ? e.response?.data["message"]
+              : ApiErrorHandler.handleError(e);
+      return {"success": false, "message": mess};
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Lỗi không xác định: $e"
-      };
+      return {"success": false, "message": "Lỗi không xác định: $e"};
     }
   }
-
 
   Future<Map<String, dynamic>> refreshToken() async {
     try {
@@ -124,10 +110,7 @@ class AuthService {
 
       final currentToken = await AuthManager.getToken();
       if (currentToken == null) {
-        return {
-          "success": false,
-          "message": "Không tìm thấy token hiện tại"
-        };
+        return {"success": false, "message": "Không tìm thấy token hiện tại"};
       }
 
       final deviceId = await AuthManager.getDeviceId();
@@ -168,10 +151,7 @@ class AuthService {
           };
         }
       } else {
-        return {
-          "success": false,
-          "message": "Làm mới token thất bại"
-        };
+        return {"success": false, "message": "Làm mới token thất bại"};
       }
     } on DioException catch (e) {
       print(' Token refresh failed: ${e.message}');
@@ -185,19 +165,12 @@ class AuthService {
         };
       }
 
-      return {
-        "success": false,
-        "message": ApiErrorHandler.handleError(e)
-      };
+      return {"success": false, "message": ApiErrorHandler.handleError(e)};
     } catch (e) {
       print(' Token refresh error: $e');
-      return {
-        "success": false,
-        "message": "Lỗi không xác định: $e"
-      };
+      return {"success": false, "message": "Lỗi không xác định: $e"};
     }
   }
-
 
   Future<Map<String, dynamic>> logout() async {
     try {
@@ -230,10 +203,7 @@ class AuthService {
 
       await AuthManager.logout();
 
-      return {
-        "success": true,
-        "message": "Đăng xuất thành công"
-      };
+      return {"success": true, "message": "Đăng xuất thành công"};
     } on DioException catch (e) {
       print('⚠️ Logout API failed, clearing local data anyway');
 
@@ -257,7 +227,6 @@ class AuthService {
       };
     }
   }
-
 
   Future<Map<String, dynamic>> verifySession() async {
     try {
@@ -291,9 +260,7 @@ class AuthService {
       if (response.statusCode == 200) {
         final isValid = response.data['is_valid'] ?? false;
 
-        print(isValid
-            ? ' Session is valid'
-            : ' Session is invalid');
+        print(isValid ? ' Session is valid' : ' Session is invalid');
 
         return {
           "success": true,
@@ -322,7 +289,6 @@ class AuthService {
     }
   }
 
-
   Future<Map<String, dynamic>> updateSession() async {
     try {
       final token = await AuthManager.getToken();
@@ -331,10 +297,7 @@ class AuthService {
       final sessionId = await AuthManager.getSessionId();
 
       if (token == null || userId == null) {
-        return {
-          "success": false,
-          "message": "Không tìm thấy thông tin phiên"
-        };
+        return {"success": false, "message": "Không tìm thấy thông tin phiên"};
       }
 
       final response = await dio.post(
@@ -355,26 +318,14 @@ class AuthService {
       if (response.statusCode == 200 || response.statusCode == 201) {
         print(' Session updated');
 
-        return {
-          "success": true,
-          "message": "Session updated successfully"
-        };
+        return {"success": true, "message": "Session updated successfully"};
       } else {
-        return {
-          "success": false,
-          "message": "Không thể cập nhật phiên"
-        };
+        return {"success": false, "message": "Không thể cập nhật phiên"};
       }
     } on DioException catch (e) {
-      return {
-        "success": false,
-        "message": ApiErrorHandler.handleError(e)
-      };
+      return {"success": false, "message": ApiErrorHandler.handleError(e)};
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Lỗi không xác định: $e"
-      };
+      return {"success": false, "message": "Lỗi không xác định: $e"};
     }
   }
 }
